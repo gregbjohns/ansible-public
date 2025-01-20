@@ -1,0 +1,39 @@
+---
+- hosts: kvm_hosts
+  become: true
+  tasks:
+    - name: Install KVM and other packages
+      apt:
+        name: 
+          - kvm 
+          - qemu-kvm 
+          - libvirt-daemon-system 
+          - virt-manager
+          - bridge-utils
+          - sshpass
+          - ssh-askpass
+          - python3-pip
+          - python3-lxml 
+        state: present
+        update_cache: yes
+
+    - name: Get default interface
+      shell: ip route | grep default | awk '{print $5}'
+      register: default_interface
+
+    - name: Configure bridge networking
+      blockinfile:
+        path: /etc/network/interfaces
+        create: yes
+        block: |
+          auto br0
+          iface br0 inet dhcp
+          bridge_ports {{ default_interface.stdout }}
+          bridge_stp off
+          bridge_fd 0
+          bridge_maxwait 0
+
+    - name: Restart networking
+      service:
+        name: networking
+        state: restarted
