@@ -2,10 +2,9 @@
 - hosts: kvm_hosts
   become: true
   tasks:
-    - name: Install KVM and other packages
+    - name: Install KVM and other QEMU packages
       apt:
         name: 
-          - kvm 
           - qemu-kvm 
           - libvirt-daemon-system 
           - virt-manager
@@ -14,6 +13,10 @@
           - ssh-askpass
           - python3-pip
           - python3-lxml 
+          - libguestfs-tools
+          - libosinfo-bin
+          - qemu-system
+          - virtinst
         state: present
         update_cache: yes
 
